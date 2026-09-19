@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Penjualan & Persediaan - Warung/Grosir</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{background-color:#f4f6f9;color:#333}
+        .login-container{max-width:400px;margin:100px auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 0 15px rgba(0,0,0,.1)}
+        .login-container h2{text-align:center;margin-bottom:25px;color:#2c3e50}
+        .form-group{margin-bottom:15px}
+        .form-group label{display:block;margin-bottom:5px;font-weight:600}
+        .form-group input,.form-group select,.form-group button{width:100%;padding:10px;border:1px solid #ddd;border-radius:5px}
+        button{background-color:#3498db;color:#fff;border:none;cursor:pointer;font-weight:600}
+        button:hover{background-color:#2980b9}
+        .app-container{display:none;min-height:100vh}
+        .sidebar{width:250px;background-color:#2c3e50;color:#fff;position:fixed;height:100vh;overflow-y:auto}
+        .sidebar-header{padding:20px;background-color:#1a252f;border-bottom:1px solid #34495e}
+        .sidebar-header h3{font-size:16px;line-height:1.4}
+        .sidebar-menu{padding:15px 0}
+        .menu-title{padding:10px 20px;font-size:12px;text-transform:uppercase;color:#95a5a6;margin-top:10px}
+        .sidebar-menu a{display:block;padding:12px 20px;color:#ecf0f1;text-decoration:none;transition:all .3s}
+        .sidebar-menu a:hover,.sidebar-menu a.active{background-color:#3498db;border-left:4px solid #e74c3c}
+        .main-content{margin-left:250px;padding:20px}
+        .top-bar{background:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+        .logout-btn{background-color:#e74c3c;padding:8px 15px;border-radius:5px}
+        .logout-btn:hover{background-color:#c0392b}
+        .page{display:none;background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+        .page.active{display:block}
+        h2{margin-bottom:20px;color:#2c3e50;border-bottom:2px solid #3498db;padding-bottom:10px}
+        .grid-dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:30px}
+        .card{padding:20px;border-radius:8px;color:#fff}
+        .card h3{font-size:14px;margin-bottom:10px;opacity:.9}
+        .card .value{font-size:28px;font-weight:700}
+        .card.blue{background:#3498db}
+        .card.green{background:#2ecc71}
+        .card.orange{background:#f39c12}
+        .card.red{background:#e74c3c}
+        table{width:100%;border-collapse:collapse;margin-top:15px}
+        table th,table td{padding:12px;text-align:left;border-bottom:1px solid #ddd}
+        table th{background-color:#f8f9fa;font-weight:700}
+        .btn-sm{padding:5px 10px;font-size:12px;margin-right:5px}
+        .btn-edit{background:#f39c12}
+        .btn-delete{background:#e74c3c}
+        .btn-save{background:#2ecc71;margin-top:15px}
+        .form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px}
+        .form-col{flex:1;min-width:200px}
+        .alert-stok{background-color:#fef0f0;border-left:4px solid #e74c3c;padding:10px 15px;margin:10px 0;color:#c0392b}
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginPage">
+        <h2>🔐 Login Sistem</h2>
+        <p style="text-align:center;margin-bottom:20px;color:#666">Sistem Informasi Penjualan & Persediaan<br>Warung / Grosir</p>
+        <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="admin"></div>
+        <div class="form-group"><label>Kata Sandi</label><input type="password" id="password" placeholder="admin123"></div>
+        <div class="form-group"><button onclick="login()">Masuk ke Sistem</button></div>
+        <p style="text-align:center;font-size:12px;color:#999;margin-top:15px">
+            Default: admin / admin123<br>
+            🏪 Multi Grosir — Pemilik: Raharja — Sukabumi, Indonesia
+        </p>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>🏪 Multi Grosir</h3>
+                <p style="font-size:12px;color:#95a5a6">Pemilik: Raharja</p>
+                <p style="font-size:11px;color:#7f8c8d">Sukabumi, Indonesia</p>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-link active" data-page="dashboard">📊 Dashboard</a>
+                <div class="menu-title">Data Master</div>
+                <a href="#" class="menu-link" data-page="barang">📦 Data Barang</a>
+                <a href="#" class="menu-link" data-page="kategori">📂 Data Kategori</a>
+                <a href="#" class="menu-link" data-page="supplier">🏭 Data Supplier</a>
+                <div class="menu-title">Transaksi</div>
+                <a href="#" class="menu-link" data-page="pembelian">🛒 Pembelian</a>
+                <a href="#" class="menu-link" data-page="penjualan">💰 Penjualan</a>
+                <div class="menu-title">Persediaan</div>
+                <a href="#" class="menu-link" data-page="stok">📋 Stok Barang</a>
+                <a href="#" class="menu-link" data-page="stok-min">⚠️ Stok Minimum</a>
+                <div class="menu-title">Laporan</div>
+                <a href="#" class="menu-link" data-page="lap-penjualan">📑 Laporan Penjualan</a>
+                <a href="#" class="menu-link" data-page="lap-pembelian">📑 Laporan Pembelian</a>
+                <a href="#" class="menu-link" data-page="lap-stok">📑 Laporan Stok</a>
+                <a href="#" class="menu-link" data-page="lap-laba">📊 Laporan Keuntungan</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div><h4>Selamat Datang — Admin</h4><small>Tanggal: September 2026</small></div>
+                <button class="logout-btn" onclick="logout()">Keluar</button>
+            </div>
+
+            <div class="page active" id="page-dashboard">
+                <h2>📊 Dashboard</h2>
+                <div class="grid-dashboard">
+                    <div class="card blue"><h3>Total Barang</h3><div class="value" id="jmlBarang">0</div></div>
+                    <div class="card green"><h3>Total Penjualan</h3><div class="value" id="jmlJual">Rp 0</div></div>
+                    <div class="card orange"><h3>Total Pembelian</h3><div class="value" id="jmlBeli">Rp 0</div></div>
+                    <div class="card red"><h3>Stok Hampir Habis</h3><div class="value" id="stokHabis">0</div></div>
+                </div>
+                <h3>Barang di Bawah Stok Minimum</h3>
+                <div id="daftarStokRendah"></div>
+            </div>
+
+            <div class="page" id="page-barang">
+                <h2>📦 Data Barang</h2>
+                <div class="form-row">
+                    <div class="form-col"><label>Kode Barang</label><input type="text" id="kodeBrg" placeholder="BRG001"></div>
+                    <div class="form-col"><label>Nama Barang</label><input type="text" id="namaBrg" placeholder="Indomie Goreng"></div>
+                    <div class="form-col"><label>Kategori</label>
+                        <select id="katBrg">
+                            <option value="">Pilih Kategori</option>
+                            <option>Makanan</option><option>Minuman</option>
+                            <option>Bahan Pokok</option><option>Kebutuhan Lain</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><label>Satuan</label><input type="text" id="satBrg" placeholder="Bungkus/Kg"></div>
+                    <div class="form-col"><label>Harga Beli (Rp)</label><input type="number" id="beliBrg" placeholder="0"></div>
+                    <div class="form-col"><label>Harga Jual (Rp)</label><input type="number" id="jualBrg" placeholder="0"></div>
+                    <div class="form-col"><label>Stok Awal</label><input type="number" id="stokBrg" placeholder="0"></div>
+                    <div class="form-col"><label>Stok Minimum</label><input type="number" id="minBrg" placeholder="5"></div>
+                </div>
+                <button class="btn-save" onclick="simpanBarang()">Simpan Barang</button>
+                <h3>Daftar Barang</h3>
+                <table id="tabelBarang">
+                    <thead><tr><th>Kode</th><th>Nama</th><th>Kategori</th><th>Harga Beli</th><th>Harga Jual</th><th>Stok</th><th>Stok Min</th><th>Aksi</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="page" id="page-supplier">
+                <h2>🏭 Data Supplier</h2>
+                <div class="form-row">
+                    <div class="form-col"><label>Nama Supplier</label><input type="text" id="namaSup"></div>
+                    <div class="form-col"><label>Alamat</label><input type="text" id="alamatSup"></div>
+                    <div class="form-col"><label>No. Telepon</label><input type="text" id="telpSup"></div>
+                </div>
+                <button class="btn-save" onclick="simpanSupplier()">Simpan Supplier</button>
+                <table id="tabelSupplier">
+                    <thead><tr><th>Nama</th><th>Alamat</th><th>No. Telp</th><th>Aksi</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="page" id="page-pembelian">
+                <h2>🛒 Transaksi Pembelian</h2>
+                <div class="form-row">
+                    <div class="form-col"><label>Supplier</label><select id="pilSupplier"></select></div>
+                    <div class="form-col"><label>Barang</label><select id="pilBrgBeli"></select></div>
+                    <div class="form-col"><label>Jumlah</label><input type="number" id="jmlBeli" placeholder="0"></div>
+                </div>
+                <button class="btn-save" onclick="prosesBeli()">Proses Pembelian</button>
+                <table id="tabelBeli">
+                    <thead><tr><th>Tanggal</th><th>Supplier</th><th>Barang</th><th>Jumlah</th><th>Total</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="page" id="page-penjualan">
+                <h2>💰 Transaksi Penjualan</h2>
+                <div class="form-row">
+                    <div class="form-col"><label>Barang</label><select id="pilBrgJual"></select></div>
+                    <div class="form-col"><label>Jumlah</label><input type="number" id="jmlJualInput" placeholder="0"></div>
+                    <div class="form-col"><label>Total Bayar</label><input type="number" id="bayarJual" placeholder="0"></div>
+                </div>
+                <button class="btn-save" onclick="prosesJual()">Proses Penjualan</button>
+                <table id="tabelJual">
+                    <thead><tr><th>Tanggal</th><th>Barang</th><th>Jumlah</th><th>Total</th><th>Kembalian</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="page" id="page-stok">
+                <h2>📋 Stok Barang</h2>
+                <table id="tabelStok">
+                    <thead><tr><th>Kode</th><th>Nama</th><th>Stok Awal</th><th>Barang Masuk</th><th>Barang Keluar</th><th>Stok Akhir</th><th>Keterangan</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <p style="margin-top:15px;font-style:italic;">Rumus: Stok Akhir = Stok Awal + Barang Masuk − Barang Keluar</p>
+            </div>
+
+            <div class="page" id="page-lap-penjualan">
+                <h2>📑 Laporan Penjualan</h2>
+                <table id="tabelLapJual">
+                    <thead><tr><th>Tanggal</th><th>Barang</th><th>Jumlah</th><th>Total</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <h3 style="margin-top:20px;">Total Penjualan: <span id="totalLapJual">Rp 0</span></h3>
+            </div>
+
+            <div class="page" id="page-lap-pembelian">
+                <h2>📑 Laporan Pembelian</h2>
+                <table id="tabelLapBeli">
+                    <thead><tr><th>Tanggal</th><th>Supplier</th><th>Barang</th><th>Jumlah</th><th>Total</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="page" id="page-lap-laba">
+                <h2>📊 Laporan Keuntungan</h2>
+                <table id="tabelLaba">
+                    <thead><tr><th>Barang</th><th>Untung per Unit</th><th>Terjual</th><th>Total Keuntungan</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <h3 style="margin-top:20px;">Total Keuntungan Keseluruhan: <span id="totalLaba">Rp 0</span></h3>
+            </div>
+
+            <div class="page" id="page-kategori"><h2>📂 Data Kategori</h2><p>Kategori dapat dikelola di sini.</p></div>
+            <div class="page" id="page-stok-min"><h2>⚠️ Stok Minimum</h2><div id="daftarStokMin"></div></div>
+            <div class="page" id="page-lap-stok"><h2>📑 Laporan Stok</h2><p>Lihat halaman Stok Barang.</p></div>
+        </div>
+    </div>
+
+    <script>
+        let dataBarang=[],dataSupplier=[],dataPembelian=[],dataPenjualan=[],stokMasuk={},stokKeluar={};
+        function login(){const u=document.getElementById('username').value,p=document.getElementById('password').value;if(u==='admin'&&p==='admin123'){document.getElementById('loginPage').style.display='none';document.getElementById('appContainer').style.display='block';muatDataAwal()}else alert('Username atau kata sandi salah!')}
+        function logout(){document.getElementById('loginPage').style.display='block';document.getElementById('appContainer').style.display='none'}
+        document.querySelectorAll('.menu-link').forEach(l=>{l.addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('.menu-link').forEach(x=>x.classList.remove('active'));l.classList.add('active');const h=l.getAttribute('data-page');document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(`page-${h}`).classList.add('active');if(h==='dashboard')muatDashboard();if(h==='stok')muatStokTabel();if(h==='lap-penjualan')muatLapJual();if(h==='lap-pembelian')muatLapBeli();if(h==='lap-laba')muatLaba();if(h==='stok-min')muatStokMin()})});
+        function muatDataAwal(){
+            dataBarang=[{kode:'BRG001',nama:'Indomie Goreng',kat:'Makanan',sat:'Bungkus',beli:2500,jual:3500,stok:50,min:5},{kode:'BRG002',nama:'Teh Pucuk',kat:'Minuman',sat:'Kotak',beli:3000,jual:4000,stok:25,min:5},{kode:'BRG003',nama:'Gula Pasir 1Kg',kat:'Bahan Pokok',sat:'Kilogram',beli:15000,jual:18000,stok:15,min:3}];
+            dataSupplier=[{nama:'Supplier Sukabumi',alamat:'Jl. Utama No.10 Sukabumi',telp:'08123456789'},{nama:'PT Sembako Sejahtera',alamat:'Kawasan Industri Sukabumi',telp:'08198765432'}];
+            stokMasuk={'BRG001':30,'BRG002':10,'BRG003':5};stokKeluar={'BRG001':20,'BRG002':5,'BRG003':2};
+            muatTabelBarang();muatTabelSupplier();muatPilihanBarang();muatPilihanSupplier();muatDashboard();
+        }
+        function simpanBarang(){
+            const b={kode:document.getElementById('kodeBrg').value,nama:document.getElementById('namaBrg').value,kat:document.getElementById('katBrg').value,sat:document.getElementById('satBrg').value,beli:parseInt(document.getElementById('beliBrg').value)||0,jual:parseInt(document.getElementById('jualBrg').value)||0,stok:parseInt(document.getElementById('stokBrg').value)||0,min:parseInt(document.getElementById('minBrg').value)||5};
+            if(!b.kode||!b.nama)return alert('Kode dan Nama Barang wajib diisi!');
+            dataBarang.push(b);stokMasuk[b.kode]=0;stokKeluar[b.kode]=0;muatTabelBarang();muatPilihanBarang();muatDashboard();alert('Barang berhasil disimpan!');
+        }
+        function muatTabelBarang(){const t=document.querySelector('#tabelBarang tbody');t.innerHTML='';dataBarang.forEach(b=>{const a=b.stok+(stokMasuk[b.kode]||0)-(stokKeluar[b.kode]||0);t.innerHTML+=`<tr><td>${b.kode}</td><td>${b.nama}</td><td>${b.kat}</td><td>Rp ${b.beli.toLocaleString()}</td><td>Rp ${b.jual.toLocaleString()}</td><td>${a}</td><td>${b.min}</td><td><button class="btn-sm btn-delete" onclick="hapusBarang('${b.kode}')">Hapus</button></td></tr>`})}
+        function hapusBarang(k){if(confirm('Yakin hapus?')){dataBarang=dataBarang.filter(b=>b.kode!==k);muatTabelBarang();muatPilihanBarang();muatDashboard()}}
+        function simpanSupplier(){const s={nama:document.getElementById('namaSup').value,alamat:document.getElementById('alamatSup').value,telp:document.getElementById('telpSup').value};dataSupplier.push(s);muatTabelSupplier();muatPilihanSupplier();alert('Supplier tersimpan!')}
+        function muatTabelSupplier(){const t=document.querySelector('#tabelSupplier tbody');t.innerHTML='';dataSupplier.forEach(s=>t.innerHTML+=`<tr><td>${s.nama}</td><td>${s.alamat}</td><td>${s.telp}</td><td></td></tr>`)}
+        function muatPilihanSupplier(){let o='<option value="">Pilih Supplier</option>';dataSupplier.forEach(s=>o+=`<option value="${s.nama}">${s.nama}</option>`);document.getElementById('pilSupplier').innerHTML=o}
+        function muatPilihanBarang(){let o='<option value="">Pilih Barang</option>';dataBarang.forEach(b=>o+=`<option value="${b.kode}">${b.nama}</option>`);document.getElementById('pilBrgBeli').innerHTML=o;document.getElementById('pilBrgJual').innerHTML=o}
+        function prosesBeli(){
+            const k=document.getElementById('pilBrgBeli').value,n=document.getElementById('pilSupplier').value,j=parseInt(document.getElementById('jmlBeli').value)||0,b=dataBarang.find(x=>x.kode===k);
+            if(!b||!j)return alert('Lengkapi data pembelian!');
+            const t=b.beli*j;dataPembelian.push({tgl:new Date().toLocaleDateString('id-ID'),supplier:n,barang:b.nama,jumlah:j,total:t});
+            stokMasuk[k]=(stokMasuk[k]||0)+j;muatTabelPembelian();muatDashboard();alert(`Pembelian berhasil! Total: Rp ${t.toLocaleString()}`);
+        }
+        function muatTabelPembelian(){const t=document.querySelector('#page-pembelian tbody');t.innerHTML='';dataPembelian.forEach(p=>t.innerHTML+=`<tr><td>${p.tgl}</td><td>${p.supplier}</td><td>${p.barang}</td><td>${p.jumlah}</td><td>Rp ${p.total.toLocaleString()}</td></tr>`)}
+        function prosesJual(){
+            const k=document.getElementById('pilBrgJual').value,j=parseInt(document.getElementById('jmlJualInput').value)||0,by=parseInt(document.getElementById('bayarJual').value)||0,b=dataBarang.find(x=>x.kode===k);
+            if(!b||!j)return alert('Lengkapi data penjualan!');
+            const a=b.stok+(stokMasuk[k]||0)-(stokKeluar[k]||0);if(j>a)return alert('Stok tidak mencukupi! Tersedia: '+a);
+            const t=b.jual*j,kemb=by-t;if(kemb<0)return alert('Uang bayar kurang! Kurang: Rp '+Math.abs(kemb).toLocaleString());
+            dataPenjualan.push({tgl:new Date().toLocaleDateString('id-ID'),kode:k,barang:b.nama,jml:j,harga:b.jual,total:t,bayar:by,kembalian:kemb,beliSatuan:b.beli});
+            stokKeluar[k]=(stokKeluar[k]||0)+j;muatTabelPenjualan();muatDashboard();alert(`Penjualan berhasil!\nTotal: Rp ${t.toLocaleString()}\nBayar: Rp ${by.toLocaleString()}\nKembalian: Rp ${kemb.toLocaleString()}`);
+        }
+        function muatTabelPenjualan(){const t=document.querySelector('#page-penjualan tbody');t.innerHTML='';dataPenjualan.forEach(p=>t.innerHTML+=`<tr><td>${p.tgl}</td><td>${p.barang}</td><td>${p.jml}</td><td>Rp ${p.total.toLocaleString()}</td><td>Rp ${p.kembalian.toLocaleString()}</td></tr>`)}
+        function muatDashboard(){
+            document.getElementById('jmlBarang').textContent=dataBarang.length;
+            const tj=dataPenjualan.reduce((s,d)=>s+d.total,0),tb=dataPembelian.reduce((s,d)=>s+d.total,0);
+            document.getElementById('jmlJual').textContent=`Rp ${tj.toLocaleString()}`;document.getElementById('jmlBeli').textContent=`Rp ${tb.toLocaleString()}`;
+            let sr=[];dataBarang.forEach(b=>{const ak=b.stok+(stokMasuk[b.kode]||0)-(stokKeluar[b.kode]||0);if(ak<b.min)sr.push(`${b.nama} — Tersisa ${ak}, Minimum ${b.min}`)});
+            document.getElementById('stokHabis').textContent=sr.length;
+            document.getElementById('daftarStokRendah').innerHTML=sr.length?sr.map(x=>`<div class="alert-stok">⚠️ ${x}</div>`).join(''):'<p style="color:green;">✅ Semua stok aman</p>';
+        }
+        function muatStokTabel(){
+            const t=document.querySelector('#tabelStok tbody');t.innerHTML='';
+            dataBarang.forEach(b=>{const m=stokMasuk[b.kode]||0,k=stokKeluar[b.kode]||0,ak=b.stok+m+k*-1,kt=ak<b.min?'⚠️ Di bawah minimum':'✅ Aman';t.innerHTML+=`<tr><td>${b.kode}</td><td>${b.nama}</td><td>${b.stok}</td><td>${m}</td><td>${k}</td><td><strong>${ak}</strong></td><td>${kt}</td></tr>`})
+        }
+        function muatLapJual(){const t=document.querySelector('#tabelLapJual tbody');t.innerHTML='';dataPenjualan.forEach(p=>t.innerHTML+=`<tr><td>${p.tgl}</td><td>${p.barang}</td><td>${p.jml}</td><td>Rp ${p.total.toLocaleString()}</td></tr>`);const tl=dataPenjualan.reduce((s,d)=>s+d.total,0);document.getElementById('totalLapJual').textContent=`Rp ${tl.toLocaleString()}`}
+        function muatLapBeli(){const t=document.querySelector('#tabelLapBeli tbody');t.innerHTML='';dataPembelian.forEach(p=>t.innerHTML+=`<tr><td>${p.tgl}</td><td>${p.supplier}</td><td>${p.barang}</td><td>${p.jumlah}</td><td>Rp ${p.total.toLocaleString()}</td></tr>`)}
+        function muatLaba(){
+            const t=document.querySelector('#tabelLaba tbody');t.innerHTML='';let tk=0;
+            dataBarang.forEach(b=>{const tj=dataPenjualan.filter(p=>p.kode===b.kode).reduce((s,d)=>s+d.jml,0),u=b.jual-b.beli,tt=u*tj;tk+=tt;if(tj>0)t.innerHTML+=`<tr><td>${b.nama}</td><td>Rp ${u.toLocaleString()}</td><td>${tj}</td><td>Rp ${tt.toLocaleString()}</td></tr>`});
+            document.getElementById('totalLaba').textContent=`Rp ${tk.toLocaleString()}`;
+        }
+        function muatStokMin(){
+            let h='';dataBarang.forEach(b=>{const ak=b.stok+(stokMasuk[b.kode]||0)-(stokKeluar[b.kode]||0);if(ak<b.min)h+=`<div class="alert-stok">⚠️ ${b.nama} — Stok: ${ak} | Minimum: ${b.min} — Segera lakukan pembelian!</div>`});
+            document.getElementById('daftarStokMin').innerHTML=h||'<p style="color:green;">✅ Semua barang memenuhi batas stok minimum</p>';
+        }
+    </script>
+</body>
+</html>
